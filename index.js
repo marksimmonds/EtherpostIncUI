@@ -48,45 +48,32 @@ app.use(function (state, emitter) {
 
     // Unlock account
     const accounts = await web3.eth.getAccounts()
-    // web3.eth.personal.unlockAccount(accounts[0], async function (error, result) {
-    //   if (error) {
-    //     console.error('unlock account error:', error)
-    //   }
-    //   else {
-    //     web3.eth.defaultAccount = accounts[0]
-    //     // console.log('account number:', web3.eth.defaultAccount)
-    //   }
-    // })
+    web3.eth.personal.unlockAccount(accounts[0], async function (error, result) {
+      if (error) {
+        console.error('unlock account error:', error)
+      }
+      else {
+        web3.eth.defaultAccount = accounts[0]
+        // console.log('account number:', web3.eth.defaultAccount)
+      }
+    })
 
     web3.eth.personal.unlockAccount(accounts[0], "test password!", 600)
       .then(web3.eth.defaultAccount = accounts[0])
       .then(console.log('Account unlocked!'))
       .then(console.log('default account - account[0]:', web3.eth.defaultAccount))
 
+    console.log('web3.eth.defaultAccount:', web3.eth.defaultAccount)
 
-    console.log(web3.eth.getAccounts(accounts => console.log(accounts[0])))
+    web3.eth.getAccounts(accounts => console.log(accounts[0]))
 
     // Get Username from EthAddress *** NOT WORKING ***
-    //***** WHY DOESNT .CALL() WORK HERE.......
-    state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).send({ from: web3.eth.defaultAccount })
-    .on('error', console.error)
-    .on('receipt', async receipt => {
-        console.log("Username Retrieval Success!", receipt)
-    })
-    // ***** NOT GETTING FROM CONTRACT!!!!
-    state.username = 'simmo'
-    console.log("app.use username is:", state.username)
-
+    state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).call()
+    console.log("app.use - username is:", state.username)
 
     //Retrieve all images from EthAddress
-    usersImageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).send({ from: web3.eth.defaultAccount })
-    .on('error', console.error)
-    .on('receipt', async receipt => {
-        console.log("Users Image Retrieval Success!", receipt)
-    })
-    //****** NEED TO GET FROM CONTRACT!
-    userImageHashes = ['0xa9700aa67b19a5e79d338a66e6fd11477019e18cffc07579d1d6fbb49d6cca02', '0xc212ccf72b315754b9d165aafb89a11a8f2feeaa01a4a7a342aee622a538ceaf']
-    console.log("hashes are:", userImageHashes)
+    userImageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).call()
+    console.log("app.use - hashes are:", userImageHashes)
     emitter.emit('render')
   })
 
@@ -215,4 +202,13 @@ function getIpfsHashFromBytes32(bytes32Hex) {
   const hashBytes = Buffer.from(hex, 'hex');
   const str = bs58.encode(hashBytes)
   return str
+}
+
+// Return uploads from smart contract for given user
+function getUploadsForUser(state, user) {
+    return new Promise(function (resolve, reject) {
+        state.contractInstance.methods.getUploads(user).call().then(function (response) {
+            resolve(response);
+        });
+    });
 }

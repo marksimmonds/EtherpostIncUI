@@ -44,6 +44,7 @@ module.exports = function (state, emit) {
   }
 
   function getUserHtml() {
+    console.log('main - getUserHtml - state.username:', state.username)
     if (state.username) {
       userHtml = html `
         <p>Welcome back ${state.username}!</p>
@@ -51,7 +52,7 @@ module.exports = function (state, emit) {
     } else {
       userHtml = html `
         <form onsubmit="${registerUser}" method="POST">
-          <label for="registerUser">You haven\'t registered yet - come join the fun:"</label>
+          <label for="registerUser">You haven\'t registered yet - come join the fun:</label>
           <input type="text" id="registerUser" name="registerUser">
         </form>
         `
@@ -71,8 +72,6 @@ module.exports = function (state, emit) {
   }
 
 
-
-
   return html `
   <div>
     ${getUserHtml()}
@@ -87,7 +86,8 @@ module.exports = function (state, emit) {
       <input type="submit" value="Go Get 'em">
     </form>
     <br>
-    ${state.imageHashes.map(image)}
+    
   </div>`
 }
 //     <!---${state.imageObjects.map(imageObj)}--->
+    // ${state.imageHashes.map(image)}
