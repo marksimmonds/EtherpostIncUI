@@ -1,0 +1,103 @@
+// import choo
+var choo = require('choo')
+var html = require('choo/html')
+// initialize choo
+var app = choo()
+// Import contract ABI
+var contractABI = require("./dist/contracts/Etherpost.json").abiDefinition
+// Buffer for files
+var buffer = require('buffer')
+// Initialize IPFS
+// var IPFS = require('ipfs')
+var IPFS = require('ipfs-http-client')
+// var node = new IPFS()
+var node = new IPFS('ipfs.infura.io', '5001', {protocol: 'https'})
+
+app.use(function (state, emitter) {
+  state.message = ""
+
+  emitter.on('DOMContentLoaded', async () => {
+    // Check for web3 instance. Create if necessary.
+    // Access MetaMask
+    if (window.ethereum) {
+        try {
+            await window.ethereum.enable()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // Set up web3 provider
+    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8555"))
+    console.log(web3.eth.getAccounts(accounts => console.log(accounts[0])))
+    // Set up contract interface
+    state.contractInstance = new web3.eth.Contract(contractABI, "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194")
+    // Get message from contract
+    var msg = await getMessage(state);
+    state.message = msg;
+    emitter.emit('render')
+
+    // Unlock account
+    const accounts = await web3.eth.getAccounts()
+    web3.eth.personal.unlockAccount(accounts[0], async function (error, result) {
+      if (error) {
+          console.error(error)
+      }
+      else {
+          web3.eth.defaultAccount = accounts[0]
+      }
+    });
+  })
+
+  emitter.on('upload', function (file) {
+    const reader = new FileReader();
+    reader.onloadend = function () {
+      const buf = buffer.Buffer(reader.result)
+      node.add(buf, (err, result) => {
+        if (err) {
+            console.error(err)
+            return
+        }
+	      // console.log(result[0].hash)
+	      state.ipfsUrl = `https://ipfs.io/ipfs/${result[0].hash}`
+				console.log('STATE.IPFSURL:' + state.ipfsUrl)
+				emitter.emit('render')
+				console.log('after render')
+	    })
+    }
+		reader.readAsArrayBuffer(file)
+  })
+})
+
+
+const main = (state, emit) => {
+
+  function upload(e) {
+    e.preventDefault()
+    var file = document.getElementById('file').files[0];
+    console.log(file)
+    emit('upload', file)
+  }
+
+  let image
+	if (state.ipfsUrl) {
+	  image = html `<a href="${state.ipfsUrl}"><img src="${state.ipfsUrl}" /></a>`
+	}
+
+	return html `
+	<div>
+	<form onsubmit="${upload}" method="post">
+    <label for="file">Upload:</label><br>
+    <input type="file" id="file" name="file">
+    <input type="submit" value="Add">
+	</form>
+	<br>
+	${image}
+	</div>`
+
+}
+
+// create a route
+app.route('/', main)
+// start app
+app.mount('div')
