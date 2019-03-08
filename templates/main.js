@@ -2,10 +2,12 @@
 var html = require('choo/html')
 
 // import template
-var task = require('./image.js')
+var image = require('./image.js')
 
 // export module
-module.exports = function (state, emit) {
+module.exports = function (state, emit, getImageObj) {
+
+  console.log('main.js - state:', state)
 
   // Get Uploads (returns an array)
   function upload(e) {
@@ -35,7 +37,7 @@ module.exports = function (state, emit) {
   }
 
 
-  function addComment(e) {
+  function addComment(comment, hash) {
     e.preventDefault()
     var data = new FormData(e.currentTarget)
     comment = data.get("addComment")
@@ -57,8 +59,8 @@ module.exports = function (state, emit) {
         </form>
         `
     }
-    console.log('state.username:', state.username)
-    console.log('userHtml:', userHtml)
+    // console.log('state.username:', state.username)
+    // console.log('userHtml:', userHtml)
     return userHtml
   }
 
@@ -71,6 +73,8 @@ module.exports = function (state, emit) {
     emit('addClap', data)
   }
 
+  // console.log('main.js - state.imageHashes:', state.imageHashes)
+  // console.log('main.js - state.imageObjects:', state.imageObjects)
 
   return html `
   <div>
@@ -86,8 +90,12 @@ module.exports = function (state, emit) {
       <input type="submit" value="Go Get 'em">
     </form>
     <br>
-    
+    ${console.log('main.js-return html-state.imageHashes:', state.imageHashes)}
+    ${console.log('main.js-return html-state.username:', state.username)}
+    ${console.log('main.js-return html-state:', state)}
+    ${state.imageObjects.map(image)}
   </div>`
 }
+
 //     <!---${state.imageObjects.map(imageObj)}--->
-    // ${state.imageHashes.map(image)}
+// ${state.imageHashes.map(image)}

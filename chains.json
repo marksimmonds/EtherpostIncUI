@@ -176,6 +176,18 @@
       "0x70ccb73b4804acffab42cbf6d936e42ae6704212bd5f8fe55013f528c4e5f203": {
         "name": "Etherpost",
         "address": "0xE9046b67E3A3C8F832B14cf2bea1D77A7035D1c5"
+      },
+      "0x3043b04ad856d169c8f0b0509c0bc63192dc7edd92d6933c58708298a0e381be": {
+        "name": "ENSRegistry",
+        "address": "0x7FF2C7E85fB2A31Ae091052690943b4273253a39"
+      },
+      "0x468725f53d41a6ef6fa022d5ba2c9afa49fe06a0354c64460707f74361cddd7e": {
+        "name": "Resolver",
+        "address": "0x84DcD7cA1BC10a4ECbe8a244E0614e4536102Be3"
+      },
+      "0xc13e49197f0ea51d8c6f0870e151d8e8aa3c9b213cc29d615db7d3e465397125": {
+        "name": "FIFSRegistrar",
+        "address": "0xD33Ffa0887b0D32A36187B326Bf2Ff8E76031cE8"
       }
     }
   },
@@ -552,6 +564,54 @@
       "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
         "name": "Etherpost",
         "address": "0x6B9F8D2856191B4cb45dC4d2c59731B666211e08"
+      }
+    }
+  },
+  "0xef5bf6410ee5b1b97296d0725b58c76273ba478df60eb07f6d2674858737f33b": {
+    "contracts": {
+      "0x70ccb73b4804acffab42cbf6d936e42ae6704212bd5f8fe55013f528c4e5f203": {
+        "name": "Etherpost",
+        "address": "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194"
+      },
+      "0x3043b04ad856d169c8f0b0509c0bc63192dc7edd92d6933c58708298a0e381be": {
+        "name": "ENSRegistry",
+        "address": "0x10Aa1c9C2ad79b240Dc612cd2c0c0f5513bAfF28"
+      },
+      "0x710720b34a16c4d4634391c07fbdf6c738ae8df353d86c51c615bc8cfe364187": {
+        "name": "Resolver",
+        "address": "0xd8a512EBD6fd82f44dFFD968EEB0835265497d20"
+      },
+      "0xd7062060e3f38fb3d85ecfca333059e2548de66d79d97f7e51dbeb584bf3641d": {
+        "name": "FIFSRegistrar",
+        "address": "0x494748735312D87C54Ff36E9dc71f90fb800D7Df"
+      }
+    }
+  },
+  "0x131dc13fc55dad67045b8b2112a97bdef87bb74c96295627ccd8af44d9f016f7": {
+    "contracts": {
+      "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
+        "name": "Etherpost",
+        "address": "0xa3E6B9Bc3F42E706f49bBE13EeA7DD07675D4CC9"
+      }
+    }
+  },
+  "0xa1451cb364189e0271056698cc6fba2f181dd357219d68bb0e9df957b808f858": {
+    "contracts": {
+      "0x70ccb73b4804acffab42cbf6d936e42ae6704212bd5f8fe55013f528c4e5f203": {
+        "name": "Etherpost",
+        "address": "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194"
+      },
+      "0x3043b04ad856d169c8f0b0509c0bc63192dc7edd92d6933c58708298a0e381be": {
+        "name": "ENSRegistry",
+        "address": "0x10Aa1c9C2ad79b240Dc612cd2c0c0f5513bAfF28"
+      },
+      "0x710720b34a16c4d4634391c07fbdf6c738ae8df353d86c51c615bc8cfe364187": {
+        "name": "Resolver",
+        "address": "0xd8a512EBD6fd82f44dFFD968EEB0835265497d20"
+      },
+      "0xd7062060e3f38fb3d85ecfca333059e2548de66d79d97f7e51dbeb584bf3641d": {
+        "name": "FIFSRegistrar",
+        "address": "0x494748735312D87C54Ff36E9dc71f90fb800D7Df"
       }
     }
   }
