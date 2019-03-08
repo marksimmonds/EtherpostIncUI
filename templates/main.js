@@ -2,12 +2,13 @@
 var html = require('choo/html')
 
 // import template
-var image = require('./image.js')
+var imageHtml = require('./image.js')
 
 // export module
 module.exports = function (state, emit, getImageObj) {
 
   console.log('main.js - state:', state)
+
 
   // Get Uploads (returns an array)
   function upload(e) {
@@ -17,6 +18,7 @@ module.exports = function (state, emit, getImageObj) {
     emit('upload', file)
   }
 
+
   // get Uploads from username (contract comms goes in index)
   function getPostsFromUsername(e) {
     e.preventDefault()
@@ -25,6 +27,7 @@ module.exports = function (state, emit, getImageObj) {
     console.log('getUploadsFromUsername - main.js - username:', username)
     emit('getPostsFromUsername', username)
   }
+
 
   //try register user with just emit, and contract comms goes in index.js
   function registerUser(e) {
@@ -37,12 +40,24 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
-  function addComment(comment, hash) {
-    e.preventDefault()
-    var data = new FormData(e.currentTarget)
-    comment = data.get("addComment")
-    ipfsHash = ''
-    emit('addComment', ipfsHash, comment)
+  // function addComment(ipfsHash, _comment) {
+  //   _comment.preventDefault()
+  //   var data = new FormData(_comment.currentTarget)
+  //   comment = data.get("addComment")
+  //   console.log('main.js-addComment-comment:', comment)
+  //   emit('addComment', ipfsHash, comment)
+  // }
+
+
+  function addComment(e) {
+      console.log('main.js-addComment-e', e)
+      e.preventDefault()
+      var bytes32hash = e.target.name;
+      // var comment = e.target.addComment.value;
+      var comment = 'from main.js->addComment->test input'
+      var data = { bytes32hash: bytes32hash, comment: comment };
+      console.log('main.js-addComment-data', data)
+      emit('addComment', bytes32hash, comment)
   }
 
   function getUserHtml() {
@@ -59,22 +74,41 @@ module.exports = function (state, emit, getImageObj) {
         </form>
         `
     }
-    // console.log('state.username:', state.username)
-    // console.log('userHtml:', userHtml)
     return userHtml
   }
+
 
   function addClap(e){
     e.preventDefault()
     var data = new FormData(e.currentTarget)
-    console.log('addClap data:', data)
     data = data.get("addClap")
     console.log('added a clap')
     emit('addClap', data)
   }
 
-  // console.log('main.js - state.imageHashes:', state.imageHashes)
-  // console.log('main.js - state.imageObjects:', state.imageObjects)
+
+  // function onUpload(e) {
+  //     e.preventDefault()
+  //     var picture = document.getElementById('picture').files[0];
+  //     emit('upload', picture)
+  // }
+
+  // function onSetName(e) {
+  //     e.preventDefault()
+  //     var name = document.getElementById('name').value;
+  //     emit('setName', name)
+  // }
+
+  // function onClap(e) {
+  //     e.preventDefault()
+  //     var ipfsHash = e.target.parentNode.parentNode.id;       
+  //     emit('clap', ipfsHash)
+  // }
+
+  function imageJS(image) {
+    return imageHtml(image, addClap, addComment, state)
+  }
+
 
   return html `
   <div>
@@ -93,9 +127,6 @@ module.exports = function (state, emit, getImageObj) {
     ${console.log('main.js-return html-state.imageHashes:', state.imageHashes)}
     ${console.log('main.js-return html-state.username:', state.username)}
     ${console.log('main.js-return html-state:', state)}
-    ${state.imageObjects.map(image)}
+    ${state.imageObjects.map(imageJS)}
   </div>`
 }
-
-//     <!---${state.imageObjects.map(imageObj)}--->
-// ${state.imageHashes.map(image)}

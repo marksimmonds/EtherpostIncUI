@@ -137,14 +137,29 @@ app.use(function (state, emitter) {
   })
 
   emitter.on('addComment', async function (_imageHash, _comment) {
-    _commentHash = getBytes32FromIpfsHash(_comment)
-    await state.contractInstance.methods.comment(_imageHash, _commentHash).send({ from: web3.eth.defaultAccount, gas: 200000 })
-    .on('error', console.error)
-    .on('receipt', async receipt => {
-        console.log("Success!", receipt)
-        emit('render')
+    console.log('index.js -> emmitter -> addComment -> _imageHash:', _imageHash, '_comment:', _comment)
+
+    // upload comment to IPFS:
+    const buf = buffer.Buffer(_comment)
+    node.add(buf, (err, result) => {
+      if (err) {
+          console.error(err)
+          return
+      }
+      console.log('commentHash', result[0].hash)
+      let bytes32commentHash = getBytes32FromIpfsHash(result[0].hash)
+      console.log('bytes32CommentHash:', bytes32commentHash)
+
+      // Add bytes32commentHash into the contract
+      state.contractInstance.methods.addComment(_imageHash, bytes32commentHash).send({ from: web3.eth.defaultAccount })
+      .on('error', console.error)
+      .on('receipt', async receipt => {
+        console.log("Comment added to contract - Success!", receipt)
+        emitter.emit('render')
+      })
     })
-  })
+  })  
+
 
   emitter.on('registerUser', async function (_username) {
     console.log('Emitter-registerUser _username:', _username)
@@ -230,7 +245,7 @@ function getImageObject(_bytes32ipfsHash) {
 }
 
 async function getClaps(_bytes32ipfsHash) {
-  let claps = await sstate.contractInstance.methods.getClaps(_bytes32ipfsHash).call()
+  let claps = await state.contractInstance.methods.getClaps(_bytes32ipfsHash).call()
   return claps
 }
 
@@ -238,21 +253,3 @@ async function getComments(_bytes32ipfsHash) {
   let comments = await state.contractInstance.methods.getCcomments(_bytes32ipfsHash).call()
   return comments
 }
-
-// Return clap count from smart contract for given upload ipfsHash
-// function getClaps(state, ipfsHash) {
-//     return new Promise(function (resolve, reject) {
-//         state.etherPostContract.methods.getClapCount(getBytes32FromIpfsHash(ipfsHash)).call().then(function (response) {
-//             resolve(response);
-//         });
-//     });
-// }
-
-// // Return comments from smart contract for given upload ipfsHash
-// function getComments(state, ipfsHash) {
-//     return new Promise(function (resolve, reject) {
-//         state.contractInstance.methods.getComments(getBytes32FromIpfsHash(ipfsHash)).call().then(function (response) {
-//             resolve(response);
-//         });
-//     });
-// }

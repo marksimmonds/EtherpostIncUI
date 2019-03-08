@@ -2,72 +2,32 @@
 var html = require('choo/html')
 
 // export module
-module.exports = function (_imageObj) {
-	console.log('image.js-imagejOb:', _imageObj)
+// THIS IS CALLED IN 'MAIN.JS -> imageUpload()'
+module.exports = function (_imageObj, addClap, addComment, state) {
 
-	var bytes32hash = _imageObj.bytes32hash
 	var ipfsHash = _imageObj.ipfsHash
-	var ipfsUrl = _imageObj.ipfsUrl
-	var comments = _imageObj.comments
-	var claps = _imageObj.claps
-
-	// var username = state.username
-
-	// console.log('index.js-image:', bytes32hash, ipfsHash, ipfsUrl, comments, claps )
-	// console.log('index.js-username:', username )
+	var bytes32hash = _imageObj.bytes32hash
 
 	let image
-  if (ipfsUrl) {
+  if (_imageObj.ipfsUrl) {
     image = html `
     <body>
-    	<a href="${ipfsUrl}">
-    	<img src="${ipfsUrl}" />
-    	</a>
-  	  <form action="/button-type">
-	      <button type="button" name="addClap" for="addComment" id="addComment" onclick="${2+2}">Show some love!</button><br>
-	    </form>
-    	<form onsubmit="${2+2}" method="POST">
-	      <label for="addComment">let '${3+3}' know what you think:</label>
-	      <input type="text" id="addComment" name="addComment">
-	    </form>
+    	<a href="${_imageObj.ipfsUrl}"><img src="${_imageObj.ipfsUrl}" /></a>
+    	<input class="favorite styled"
+				       type="button"
+				       value="Claps makes me feel good"
+				       onClick="${addClap}">
+		  <p>Claps: <a id="clicks">0</a></p>
+			<form name="${bytes32hash}" onsubmit="${addComment}" method="post">
+		    <label for="addComment">Comment:</label>
+		    <input type="text" id="addComment" name="addComment">
+		    <input type="submit" value="Comment">
+		  </form>
     </body>
     `
   }
   
   return image
 }
-//  imageObj = {ipfsHash: newIpfsHash, claps: 0, comments: []}
-// module.exports = function (_imageObj) {
-// 	var ipfsHash = _imageObj.hash
-// 	var claps = _imageObj.claps
-// 	var comment = _imageObj.comment
-// 	var imageOwner = _imageObj.taskOwner
-
-//   // create html template
-//   return html`
-//     <body>
-// 	  	Image: ${ipfsHash}<br>
-// 	  	Claps: ${claps}
-// 			${state.comments.map(comment)}
-// 			Owner: ${imageOwner}<br>
-//     </body>
-//   `
-// }
-
-
-//   <div id="">
-//     <a href="${ipfsUrl}"><img src="${ipfsUrl}" /></a><br>${ADDCOMMENT(BYTES32HASH, }
-//     <form onsubmit="${addComment}" method="POST">
-//       <label for="addComment">let '${state.username}' know what you think:</label>
-//       <input type="text" id="addComment" name="addComment">
-//     </form>
-//     <form action="/button-type">
-//       <button type="button" name="addClap" for="addComment" id="addComment" onclick="${addClap(HASH)}">Show some love!</button><br>
-//     </form>
-//     <a href="${ipfsUrl}"><img src="${ipfsUrl}" /></a>
-//   </div>
 
 // FORM WITH INPUT AND BUTTON, GRAB INPUT ON BUTTON CLICK
-// }
-
-// - MARK@MARKSIMMONDS.COM
