@@ -252,26 +252,30 @@ async function getImageObject(state, _bytes32ipfsHash) {
   let ipfsUrl = `https://ipfs.io/ipfs/${ipfsHash}`
   // console.log('index.js -> func getImageObject -> ipfsUrl:', ipfsUrl)
   let claps = await getClaps(state, _bytes32ipfsHash)
-  // test claps
-  // let claps = 0
-  console.log('index.js -> func getImageObject -> claps:', claps)
-  // let comments = getComments(state, _bytes32ipfsHash)
+  // console.log('index.js -> func getImageObject -> claps:', claps)
+  let comments = await getComments(state, _bytes32ipfsHash)
   // test comments
-  let comments = ['com1', 'com2']
+  // let comments = ['com1', 'com2']
   console.log('index.js -> func getImageObject -> comments:', comments)
   return {bytes32hash: _bytes32ipfsHash, ipfsHash: ipfsHash, ipfsUrl: ipfsUrl, claps: claps, comments: comments}
 }
 
 
 async function getClaps(state, _bytes32ipfsHash) {
-  console.log('index.js -> func getClaps -> state:', state)
-  console.log('index.js -> func getClaps -> _bytes32ipfsHash:', _bytes32ipfsHash)
+  // console.log('index.js -> func getClaps -> state:', state)
+  // console.log('index.js -> func getClaps -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let claps = await state.contractInstance.methods.getClapCount(_bytes32ipfsHash).call()
   return claps
 }
 
 
 async function getComments(state, _bytes32ipfsHash) {
-  let comments = await state.contractInstance.methods.getComments(_bytes32ipfsHash).call()
-  return comments
+  console.log('index.js -> func getComments -> state:', state)
+  console.log('index.js -> func getComments -> _bytes32ipfsHash:', _bytes32ipfsHash)
+  let commentsBytes32Hashes = await state.contractInstance.methods.getComments(_bytes32ipfsHash).call()
+  let commentsIpfsHashes = commentsBytes32Hashes.map(getIpfsHashFromBytes32)
+  let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
+  // let commentsUrls = commentsBytes32Hashes.map(hash => '`https://ipfs.io/ipfs/' + getIpfsHashFromBytes32(hash))
+
+  return commentsUrls
 }

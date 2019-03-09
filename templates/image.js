@@ -6,6 +6,7 @@ var commentHtml = require('./comment.js')
 
 // export module
 // THIS IS CALLED IN 'MAIN.JS -> imageUpload()'
+// addClap and addComment are imported functions.
 module.exports = function (_imageObj, addClap, addComment, state) {
 
 	var ipfsHash		= _imageObj.ipfsHash
@@ -18,10 +19,10 @@ module.exports = function (_imageObj, addClap, addComment, state) {
 	// console.log('image.js -> _imageObj.claps', _imageObj.claps)
 	// console.log('image.js -> _imageObj.comments', _imageObj.comments)
 
-	// IMAGE TESTER
+	// IMAGE HTML TESTER
 	// let image = html `<p>Image goes here</p>`
 
-	// IMAGE PROPER
+	// IMAGE HTML PROPER
 	let image
   if (ipfsUrl) {
     image = html `
@@ -35,6 +36,8 @@ module.exports = function (_imageObj, addClap, addComment, state) {
 				      	onclick="${addClap}">
 
 		  <p>Claps: <a id="clicks">${claps}</a></p>
+			
+		  ${comments.map(commentHtml)}
 
 			<form     name="${bytes32hash}" 
 								onsubmit="${addComment}" method="post">

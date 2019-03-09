@@ -23,8 +23,8 @@ module.exports = function (state, emit, getImageObj) {
   function getPostsFromUsername(e) {
     e.preventDefault()
     var data = new FormData(e.currentTarget)
-    username = data.get("username")
-    console.log('getUploadsFromUsername - main.js - username:', username)
+    username = data.get('username')
+    console.log('main.js -> getUploadsFromUsername -> username:', username)
     emit('getPostsFromUsername', username)
   }
 
@@ -35,7 +35,7 @@ module.exports = function (state, emit, getImageObj) {
     var data = new FormData(e.currentTarget)
     console.log('main.js -> registerUser -> data:', data)
     username = data.get("registerUser")
-    console.log('registerUser - username:', username)
+    console.log('main.js -> registerUser -> username:', username)
     emit('registerUser', username)
   }
 
@@ -81,20 +81,28 @@ module.exports = function (state, emit, getImageObj) {
   return html `
   <div>
     ${getUserHtml()}
+
     <form onsubmit="${upload}" method="post">
       <label for="file">Upload:</label><br>
       <input type="file" id="file" name="file">
       <input type="submit" value="Add">
     </form>
+
     <form onsubmit="${getPostsFromUsername}" method="post">
       <label for="file">Show posts from other users:</label><br>
       <input type="username" id="username" name="username">
       <input type="submit" value="Go Get 'em">
     </form>
+
     <br>
+
+    <!---
     ${console.log('main.js -> return html -> state.imageHashes:', state.imageHashes)}
     ${console.log('main.js -> return html -> state.username:', state.username)}
     ${console.log('main.js -> return html -> state:', state)}
+    --->
+
     ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
-  </div>`
+  </div>
+  `
 }
