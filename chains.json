@@ -614,5 +614,37 @@
         "address": "0x494748735312D87C54Ff36E9dc71f90fb800D7Df"
       }
     }
+  },
+  "0xc581c413a7e39ae421f75835cbd871c38e6158f8be10e86dd68121c3a8717293": {
+    "contracts": {
+      "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
+        "name": "Etherpost",
+        "address": "0x72b95439040432Fc6ac969D3cb1748dCc0aFF21f"
+      }
+    }
+  },
+  "0xdc4574876de162c350b9ad699b92a433ddb5e0da95c9fde7b3b413c4fb4c2718": {
+    "contracts": {
+      "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
+        "name": "Etherpost",
+        "address": "0x1e2A77d13B53278B5E7A53607579a70279cfb8b5"
+      }
+    }
+  },
+  "0xaface5b63c56b5a19855b49543182cce30a9b6908758284edf5bb24564e82837": {
+    "contracts": {
+      "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
+        "name": "Etherpost",
+        "address": "0x12fCF758a6521abC067adA6f55Af91d88fA59bd4"
+      }
+    }
+  },
+  "0x3d5f30ea3eab014b8558607062b5337a995f8b3d83519ff5501264fc00903321": {
+    "contracts": {
+      "0x02eb90b953f17d374a9ef176d3c9bda5a04640118ef00bd0dc01e229b357250b": {
+        "name": "Etherpost",
+        "address": "0x99B1786F686305A918533C6C1EF9ed9EAf19289D"
+      }
+    }
   }
 }

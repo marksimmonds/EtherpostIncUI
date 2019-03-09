@@ -7,14 +7,14 @@ var imageHtml = require('./image.js')
 // export module
 module.exports = function (state, emit, getImageObj) {
 
-  console.log('main.js - state:', state)
+  console.log('main.js -> state:', state)
 
 
   // Get Uploads (returns an array)
   function upload(e) {
     e.preventDefault()
     var file = document.getElementById('file').files[0];
-    console.log('file:', file)
+    console.log('main.js -> func upload -> file:', file)
     emit('upload', file)
   }
 
@@ -33,35 +33,35 @@ module.exports = function (state, emit, getImageObj) {
   function registerUser(e) {
     e.preventDefault()
     var data = new FormData(e.currentTarget)
-    console.log('registerUser - data:', data)
+    console.log('main.js -> registerUser -> data:', data)
     username = data.get("registerUser")
     console.log('registerUser - username:', username)
     emit('registerUser', username)
   }
 
 
-  // function addComment(ipfsHash, _comment) {
-  //   _comment.preventDefault()
-  //   var data = new FormData(_comment.currentTarget)
-  //   comment = data.get("addComment")
-  //   console.log('main.js-addComment-comment:', comment)
-  //   emit('addComment', ipfsHash, comment)
-  // }
-
-
   function addComment(e) {
-      console.log('main.js-addComment-e', e)
-      e.preventDefault()
-      var bytes32hash = e.target.name;
-      // var comment = e.target.addComment.value;
-      var comment = 'from main.js->addComment->test input'
-      var data = { bytes32hash: bytes32hash, comment: comment };
-      console.log('main.js-addComment-data', data)
-      emit('addComment', bytes32hash, comment)
+    console.log('main.js -> addComment -> e', e)
+    e.preventDefault()
+    var bytes32hash = e.target.name;
+    // var comment = e.target.addComment.value;
+    var comment = 'main.js -> addComment -> test comment input'
+    var data = { bytes32hash: bytes32hash, comment: comment };
+    console.log('main.js-addComment-data', data)
+    emit('addComment', bytes32hash, comment)
   }
 
+  function addClap(e){
+    console.log('main.js -> addClap -> e', e)
+    e.preventDefault()
+    var bytes32hash = e.target.name;
+    console.log('main.js -> added a clap')
+    emit('addClap', bytes32hash)
+  }
+
+
   function getUserHtml() {
-    console.log('main - getUserHtml - state.username:', state.username)
+    console.log('main.js -> func getUserHtml -> state.username:', state.username)
     if (state.username) {
       userHtml = html `
         <p>Welcome back ${state.username}!</p>
@@ -75,38 +75,6 @@ module.exports = function (state, emit, getImageObj) {
         `
     }
     return userHtml
-  }
-
-
-  function addClap(e){
-    e.preventDefault()
-    var data = new FormData(e.currentTarget)
-    data = data.get("addClap")
-    console.log('added a clap')
-    emit('addClap', data)
-  }
-
-
-  // function onUpload(e) {
-  //     e.preventDefault()
-  //     var picture = document.getElementById('picture').files[0];
-  //     emit('upload', picture)
-  // }
-
-  // function onSetName(e) {
-  //     e.preventDefault()
-  //     var name = document.getElementById('name').value;
-  //     emit('setName', name)
-  // }
-
-  // function onClap(e) {
-  //     e.preventDefault()
-  //     var ipfsHash = e.target.parentNode.parentNode.id;       
-  //     emit('clap', ipfsHash)
-  // }
-
-  function imageJS(image) {
-    return imageHtml(image, addClap, addComment, state)
   }
 
 
@@ -124,9 +92,9 @@ module.exports = function (state, emit, getImageObj) {
       <input type="submit" value="Go Get 'em">
     </form>
     <br>
-    ${console.log('main.js-return html-state.imageHashes:', state.imageHashes)}
-    ${console.log('main.js-return html-state.username:', state.username)}
-    ${console.log('main.js-return html-state:', state)}
-    ${state.imageObjects.map(imageJS)}
+    ${console.log('main.js -> return html -> state.imageHashes:', state.imageHashes)}
+    ${console.log('main.js -> return html -> state.username:', state.username)}
+    ${console.log('main.js -> return html -> state:', state)}
+    ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
   </div>`
 }

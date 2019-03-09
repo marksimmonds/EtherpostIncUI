@@ -1,22 +1,34 @@
 // import choo's template helper	
 var html = require('choo/html')
 
+// import template
+var commentHtml = require('./comment.js')
+
 // export module
 // THIS IS CALLED IN 'MAIN.JS -> imageUpload()'
 module.exports = function (_imageObj, addClap, addComment, state) {
 
 	var ipfsHash = _imageObj.ipfsHash
+	var ipfsUrl = _imageObj.ipfsUrl
 	var bytes32hash = _imageObj.bytes32hash
+	var claps = _imageObj.claps
+	var comments = _imageObj.comments
 
+	// console.log('image.js -> _imageObj:', _imageObj)
+	// console.log('image.js -> _imageObj.claps', _imageObj.claps)
+	// console.log('image.js -> _imageObj.comments', _imageObj.comments)
+
+	// let image = html `<p>Image goes here</p>`
 	let image
-  if (_imageObj.ipfsUrl) {
+  if (ipfsUrl) {
     image = html `
     <body>
-    	<a href="${_imageObj.ipfsUrl}"><img src="${_imageObj.ipfsUrl}" /></a>
+    	<a href="${ipfsUrl}"><img src="${ipfsUrl}" /></a>
     	<input class="favorite styled"
 				       type="button"
-				       value="Claps makes me feel good"
-				       onClick="${addClap}">
+				       name="${bytes32hash}"
+				       value="claps"
+				       onclick="${addClap}">
 		  <p>Claps: <a id="clicks">0</a></p>
 			<form name="${bytes32hash}" onsubmit="${addComment}" method="post">
 		    <label for="addComment">Comment:</label>
@@ -26,8 +38,12 @@ module.exports = function (_imageObj, addClap, addComment, state) {
     </body>
     `
   }
-  
+  console.log('image.js -> addClap:', addClap)
+  console.log({addClap})
   return image
 }
 
 // FORM WITH INPUT AND BUTTON, GRAB INPUT ON BUTTON CLICK
+				       // <!---
+				       // name="${888}
+				       // --->

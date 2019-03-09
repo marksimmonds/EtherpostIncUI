@@ -2,13 +2,12 @@
 var html = require('choo/html')
 
 // export module
-//  imageObj = {ipfsHash: newIpfsHash, claps: 0, comments: []}
-module.exports = function (_ipfsHash) {
+module.exports = function (_commentHash) {
 
   // create html template
   return html`
     <body>
-		  Comment: ${ipfsHash}<br>
+		  Comment: ${commentHash}<br>
     </body>
   `
 }
