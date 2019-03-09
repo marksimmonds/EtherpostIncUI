@@ -5,7 +5,7 @@ var html = require('choo/html')
 module.exports = function (_commentHash) {
 
   // create html template
-  return html`
+  return html `
     <body>
 		  Comment: ${commentHash}<br>
     </body>

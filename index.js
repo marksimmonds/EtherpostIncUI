@@ -10,16 +10,19 @@ var buffer = require('buffer')
 var IPFS = require('ipfs')
 var node = new IPFS()
 
-// Alternative IPFS running web-only
+// ALTERNATIVE IPFS RUNNING WEB-ONLY
 // var IPFS = require('ipfs-http-client')
 // var node = new IPFS('ipfs.infura.io', '5001', {protocol: 'https'})
 
 // import template
 var main = require('./templates/main.js')
+
 // import web3
 var Web3 = require('web3')
+
 // Import contract ABI
 var contractABI = require("./dist/contracts/Etherpost.json").abiDefinition
+
 // Import bs58 library (IPFS Hashing algorithm)
 const bs58 = require('bs58')
 
@@ -62,21 +65,34 @@ app.use(function (state, emitter) {
 
     web3.eth.personal.unlockAccount(accounts[0], "test password!", 600)
       .then(web3.eth.defaultAccount = accounts[0])
-      .then(console.log('app.use -> Account unlocked. Default account - account[0]:', web3.eth.defaultAccount))
+      .then(console.log('index.js -> app.use -> Account unlocked. Default account - account[0]:', web3.eth.defaultAccount))
+
+
+    // =========== SECTION TO RETRIEVE RELEVANT VALUES FROM THE SMART CONTRACT
+    // =========== INCLUDES - USERNAME, USERS IMAGES AND DERIVE AN IMAGE OBJECT TO INCLUDE HASH, URL, CLAPS & COMMENTS.
 
     // Get Username from EthAddress
     state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).call()
-    console.log('app.use -> state.username:', state.username)
+    console.log('index.js -> app.use -> state.username:', state.username)
 
-    //Retrieve all images from EthAddress
+    // Retrieve all images from EthAddress
     state.imageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).call()
-    console.log('app.use -> state.imageHash:', state.imageHashes)
+    console.log('index.js -> app.use -> state.imageHash:', state.imageHashes)
 
-    // Convert to object with other required info included
-    // state.imageObjects = state.imageHashes.map(getImageObject)
+    // Derive an object from the imageHash that includes other required info
     state.imageObjects = state.imageHashes.map(imageHash => getImageObject(state, imageHash))
-    console.log('app.use -> state.imageObjects:', state.imageObjects)
-    
+    // console.log('index.js -> app.use -> state.imageObjects.length:', state.imageObjects.length)
+    // state.imageObjects = [ await getImageObject(state, state.imageHashes[0])]
+
+    for (let i = 0; i < state.imageObjects.length; i++) {
+      state.imageObjects[i] = await getImageObject(state, state.imageHashes[i])
+      console.log('index.js -> app.use -> state.imageObjects:', state.imageObjects[i])
+      console.log('index.js -> app.use -> state.imageObjects: -> clap extraction:', state.imageObjects[i].claps)
+    }
+
+
+    // =========== END OF SECTION
+
     emitter.emit('render')
   })
 
@@ -90,18 +106,17 @@ app.use(function (state, emitter) {
             console.error(err)
             return
         }
-        console.log('hash', result[0].hash)
+        console.log('index.js -> app.use -> emitter upload -> hash', result[0].hash)
         let newIpfsHash = getBytes32FromIpfsHash(result[0].hash)
-        console.log('bytes32Hash:', newIpfsHash)
+        console.log('index.js -> app.use -> emitter upload -> bytes32Hash:', newIpfsHash)
         let imageObj = {ipfsHash: newIpfsHash, claps: 0, comments: []}
         state.imageObjects.push(imageObj)
         state.ipfsUrl = `https://ipfs.io/ipfs/${result[0].hash}`
-        console.log('STATE.IPFSURL:' + state.ipfsUrl)
+        console.log('index.js -> app.use -> emitter upload -> state.ipfsUrl:' + state.ipfsUrl)
         state.contractInstance.methods.upload(newIpfsHash).send({ from: web3.eth.defaultAccount })
         .on('error', console.error)
         .on('receipt', async receipt => {
-          console.log("Success!", receipt)
-          // state.message = await getUploads(state)
+          console.log('index.js -> app.use -> emitter upload from contract - Success!', receipt)
           emitter.emit('render')
         })
       })
@@ -114,13 +129,13 @@ app.use(function (state, emitter) {
     let userAddress = await state.contractInstance.methods.getAddressFromName(_username).call()
     let uploads = await state.contractInstance.methods.getUploads(userAddress).call()
     let l = uploads.length
-    console.log('userAddress:', userAddress, 'uploads:', uploads, 'l:', l)
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> userAddress:', userAddress, 'uploads:', uploads, 'l:', l)
     emitter.emit('render')   
   })
 
 
   emitter.on('addClap', async function (_imageHash) {
-    console.log('injex.js -> addClap -> _imageHash:', _imageHash)
+    console.log('index.js -> app.use -> addClap -> _imageHash:', _imageHash)
     await state.contractInstance.methods.clap(_imageHash).send({ from: web3.eth.defaultAccount, gas: 200000 })
     .on('error', console.error)
     .on('receipt', async receipt => {
@@ -131,7 +146,7 @@ app.use(function (state, emitter) {
 
 
   emitter.on('addComment', async function (_imageHash, _comment) {
-    console.log('index.js -> emitter -> addComment -> _imageHash:', _imageHash, '_comment:', _comment)
+    console.log('index.js -> app.use -> emitter -> addComment -> _imageHash:', _imageHash, '_comment:', _comment)
 
     // upload comment to IPFS:
     const buf = buffer.Buffer(_comment)
@@ -140,15 +155,15 @@ app.use(function (state, emitter) {
           console.error(err)
           return
       }
-      console.log('index.js -> emitter -> addComment -> commentHash', result[0].hash)
+      console.log('index.js -> app.use -> emitter -> addComment -> commentHash', result[0].hash)
       let bytes32commentHash = getBytes32FromIpfsHash(result[0].hash)
-      console.log('index.js -> emitter -> addComment -> bytes32CommentHash:', bytes32commentHash)
+      console.log('index.js -> app.use -> emitter -> addComment -> bytes32CommentHash:', bytes32commentHash)
 
       // Add bytes32commentHash into the contract
       state.contractInstance.methods.addComment(_imageHash, bytes32commentHash).send({ from: web3.eth.defaultAccount, gas: 200000 })
       .on('error', console.error)
       .on('receipt', async receipt => {
-        console.log('index.js -> emitter -> addComment -> Comment added to contract - Success!', receipt)
+        console.log('index.js -> app.use -> emitter -> addComment -> Comment added to contract - Success!', receipt)
         emitter.emit('render')
       })
     })
@@ -156,11 +171,11 @@ app.use(function (state, emitter) {
 
 
   emitter.on('registerUser', async function (_username) {
-    console.log('Emitter-registerUser _username:', _username)
+    console.log('index.js -> app.use -> emitter -> egisterUser _username:', _username)
     state.username = await state.contractInstance.methods.register(_username).send({ from: web3.eth.defaultAccount, gas: 200000 })
     .on('error', console.error)
     .on('receipt', async receipt => {
-      console.log('index.js -> emitter -> registerUser -> Success!', receipt)
+      console.log('index.js -> app.use -> emitter -> registerUser -> Success!', receipt)
       emitter.emit('render')
     })
   })
@@ -175,15 +190,15 @@ app.use(function (state, emitter) {
             console.error(err)
             return
         }
-        console.log('hash', result[0].hash)
+        console.log('index.js -> app.use -> emitter -> getUploads -> hash', result[0].hash)
         let newIpfsHash = getBytes32FromIpfsHash(result[0].hash)
-        console.log('bytes32Hash:', newIpfsHash)
+        console.log('index.js -> app.use -> emitter -> getUploads -> bytes32Hash:', newIpfsHash)
         state.ipfsUrl = `https://ipfs.io/ipfs/${result[0].hash}`
         console.log('STATE.IPFSURL:' + state.ipfsUrl)
         state.contractInstance.methods.upload(newIpfsHash).send({ from: web3.eth.defaultAccount })
         .on('error', console.error)
         .on('receipt', async receipt => {
-          console.log("Success!", receipt)
+          console.log('index.js -> app.use -> emitter -> getUploads -> upload from contract-> Success!', receipt)
           // state.message = await getUploads(state)
           emitter.emit('render')
         })
@@ -230,27 +245,27 @@ function getUploadsForUser(state, user) {
 
 // Takes necessary inputs and returns object for each image that includes the full url, the clap count and the array of comments.
 // This is used in main.js 'return html', where it is passed to the image.js & comment.js rendering modules.
-function getImageObject(state, _bytes32ipfsHash) {
-  console.log('index.js -> func getImageObject -> _bytes32ipfsHash:', _bytes32ipfsHash)
+async function getImageObject(state, _bytes32ipfsHash) {
+  // console.log('index.js -> func getImageObject -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let ipfsHash = getIpfsHashFromBytes32(_bytes32ipfsHash)
-  console.log('index.js -> func getImageObject -> bytes32Hash:', ipfsHash)
+  // console.log('index.js -> func getImageObject -> bytes32Hash:', ipfsHash)
   let ipfsUrl = `https://ipfs.io/ipfs/${ipfsHash}`
-  console.log('index.js -> func getImageObject -> ipfsUrl:', ipfsUrl)
-  // let claps = getClaps(state, _bytes32ipfsHash)
+  // console.log('index.js -> func getImageObject -> ipfsUrl:', ipfsUrl)
+  let claps = await getClaps(state, _bytes32ipfsHash)
   // test claps
-  claps = 0
+  // let claps = 0
   console.log('index.js -> func getImageObject -> claps:', claps)
   // let comments = getComments(state, _bytes32ipfsHash)
   // test comments
-  comments = ['com1', 'com2']
+  let comments = ['com1', 'com2']
   console.log('index.js -> func getImageObject -> comments:', comments)
   return {bytes32hash: _bytes32ipfsHash, ipfsHash: ipfsHash, ipfsUrl: ipfsUrl, claps: claps, comments: comments}
 }
 
 
 async function getClaps(state, _bytes32ipfsHash) {
-  // console.log('index.js -> func getClaps -> state:', state)
-  // console.log('index.js -> func getClaps -> _bytes32ipfsHash:', _bytes32ipfsHash)
+  console.log('index.js -> func getClaps -> state:', state)
+  console.log('index.js -> func getClaps -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let claps = await state.contractInstance.methods.getClapCount(_bytes32ipfsHash).call()
   return claps
 }
