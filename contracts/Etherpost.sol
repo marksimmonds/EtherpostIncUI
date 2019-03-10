@@ -23,6 +23,7 @@ contract Etherpost {
 	event LogUpload(address uploader, bytes32 ipfsHash, uint timestamp);
 	event LogClap(address clapper, bytes32 ipfsHash);
 	event LogComment(address commenter, bytes32 imageHash, bytes32 commentHash, uint timestamp);
+	event LogRegister(address usersEthAddress, bytes32 username);
 
 	mapping (bytes32 => bool) public usernames;
 	mapping (bytes32 => address) public user2address;
@@ -35,33 +36,42 @@ contract Etherpost {
     return ipfsHashes.length;
   }
 
+
 	function upload(bytes32 ipfsHash) public {
 		uploads[msg.sender].push(ipfsHash);
 		numImages++;
 		emit LogUpload(msg.sender, ipfsHash, now);
 	}
 
+
 	function getUploads(address uploader) public view returns(bytes32[]) {
 		return uploads[uploader];
 	}
+
 
   function clap(bytes32 ipfsHash) public {
   	claps[ipfsHash]++;
   	emit LogClap(msg.sender, ipfsHash);
   }
 
-	function getClapCount(bytes32 ipfsHash) public returns(uint) {
+
+	function getClapCount(bytes32 ipfsHash) public view returns(uint) {
 		return claps[ipfsHash];
 	}
+
 
 	function addComment(bytes32 imageHash, bytes32 commentHash) public {
 		comments[imageHash].push(commentHash);
 		emit LogComment(msg.sender, imageHash, commentHash, now);
 	}
 
-	function getComments(bytes32 ipfsHash) public returns(bytes32[]) {
+
+	function getComments(bytes32 ipfsHash) public view returns(bytes32[]) {
 		return comments[ipfsHash];
 	}
+
+
+	// ====== FUNCTIONS FOR USERNAME REGISTRATION AND ASSOCIATED CHECKS ======
 
 	function register(string _name) public {
 		// Ensure users address is not already registered
@@ -73,29 +83,36 @@ contract Etherpost {
 		usernames[_bytes32Name] = true;
 		user2address[_bytes32Name] = msg.sender;
 		numUsers++;
+		emit LogRegister(msg.sender, _bytes32Name);
 	}
+
 
 	function isAddressAvailable(address _usersEthAddress) public view returns(bool) {
 		return  userInfo[_usersEthAddress].userAddress == address(0);
 	}
+
 
 	function isNameAvailable(string _name) public view returns(bool) {
 		bytes32 _bytes32Name = stringToBytes32(_name);
 		return  usernames[_bytes32Name] == false;
 	}
 
+
 	function getName(address _usersEthAddress) public view returns(string) {
 		return userInfo[_usersEthAddress].name;
 	}
+
 
 	function getAddressFromName(string _name) public view returns(address) {
 		bytes32 _bytes32Name = stringToBytes32(_name);
 		return user2address[_bytes32Name];
 	}
 
+
 	function numberOfUsers() public view returns(uint) {
 		return numUsers;
 	}
+
 
 	function numberOfImages() public view returns(uint) {
 		return numImages;
@@ -103,7 +120,7 @@ contract Etherpost {
 
 
 	// FUNCTIONS TO CONVERT BYTES32 TO STRING AND BACK AGAIN///////
-	function stringToBytes32(string memory source) public returns (bytes32 result) {
+	function stringToBytes32(string memory source) public pure returns (bytes32 result) {
 	    bytes memory tempEmptyStringTest = bytes(source);
 	    if (tempEmptyStringTest.length == 0) {
 	        return 0x0;

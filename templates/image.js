@@ -5,7 +5,7 @@ var html = require('choo/html')
 var commentHtml = require('./comment.js')
 
 // export module
-// THIS IS CALLED IN 'MAIN.JS -> imageUpload()'
+// THIS IS CALLED IN 'MAIN.JS -> imageHtml()'
 // addClap and addComment are imported functions.
 module.exports = function (_imageObj, addClap, addComment, state) {
 

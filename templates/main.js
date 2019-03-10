@@ -29,11 +29,11 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
-  //try register user with just emit, and contract comms goes in index.js
+  //try register user with just emit, contract comms goes in index.js
   function registerUser(e) {
     e.preventDefault()
     var data = new FormData(e.currentTarget)
-    console.log('main.js -> registerUser -> data:', data)
+    // console.log('main.js -> registerUser -> data:', data)
     username = data.get("registerUser")
     console.log('main.js -> registerUser -> username:', username)
     emit('registerUser', username)
@@ -44,12 +44,11 @@ module.exports = function (state, emit, getImageObj) {
     console.log('main.js -> addComment -> e', e)
     e.preventDefault()
     var bytes32hash = e.target.name;
-    // var comment = e.target.addComment.value;
-    var comment = 'main.js -> addComment -> test comment input'
-    var data = { bytes32hash: bytes32hash, comment: comment };
-    console.log('main.js-addComment-data', data)
+    var comment = e.target.addComment.value;
+    console.log('main.js -> added a comment')
     emit('addComment', bytes32hash, comment)
   }
+
 
   function addClap(e){
     console.log('main.js -> addClap -> e', e)
@@ -60,8 +59,9 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
+  // If EthAddress has a user associated, HTML is changed to suit....
   function getUserHtml() {
-    console.log('main.js -> func getUserHtml -> state.username:', state.username)
+    // console.log('main.js -> func getUserHtml -> state.username:', state.username)
     if (state.username) {
       userHtml = html `
         <p>Welcome back ${state.username}!</p>
@@ -78,6 +78,7 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
+  // Main HTML code
   return html `
   <div>
     ${getUserHtml()}
@@ -97,9 +98,9 @@ module.exports = function (state, emit, getImageObj) {
     <br>
 
     <!---
-    ${console.log('main.js -> return html -> state.imageHashes:', state.imageHashes)}
-    ${console.log('main.js -> return html -> state.username:', state.username)}
-    ${console.log('main.js -> return html -> state:', state)}
+      ${console.log('main.js -> return html -> state.imageHashes:', state.imageHashes)}
+      ${console.log('main.js -> return html -> state.username:', state.username)}
+      ${console.log('main.js -> return html -> state:', state)}
     --->
 
     ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
