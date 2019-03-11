@@ -27,29 +27,43 @@ module.exports = function (_imageObj, addClap, addComment, state) {
   if (ipfsUrl) {
     image = html `
     <body>
-    	<a href="${ipfsUrl}"><img src="${ipfsUrl}" /></a>
-    	
-    	<input    class="clapsButton"
-				      	type="button"
-				      	name="${bytes32hash}"
-				      	value="claps"
-				      	onclick="${addClap}">
+    	<div class="container">
+    		<div 	class="col-md-4" 
+    					style="padding-left: 0px;  
+    					padding-right: 300px;">
 
-		  <p>Claps: <a id="clicks">${claps}</a></p>
-			
-		  ${comments.map(commentHtml)}
+		    	<a href="${ipfsUrl}"><img src="${ipfsUrl}" /></a>
+		    	
+		    	<input  class="btn btn-success"
+					      	type="button"
+					      	name="${bytes32hash}"
+					      	value="claps"
+					      	onclick="${addClap}">
 
-			<form     name="${bytes32hash}" 
-								onsubmit="${addComment}" method="post">
+					<p>${claps}</p>
+		  	</div>
+		  	<br>
+		  </div>
+
+			<ul class="list-group list-group-flush">
+		  	${comments.map(commentHtml)}
+		  </ul>
+
+			<br>
+			<form   class="form-group"
+							name="${bytes32hash}" 
+							onsubmit="${addComment}" method="post">
+
 		    
-		    <label  for="addComment">Comment:</label>
+		    <label  for="addComment">Add a comment:</label>
 		    
 		    <input  type="text" 
 		    				id="addComment" 
 		    				name="addComment">
 		    <input  type="submit" 
-		    				value="Comment">
+		    				value="comment">
 		  </form>
+		  <br>
     </body>
     `
   }

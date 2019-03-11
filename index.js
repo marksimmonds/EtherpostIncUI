@@ -106,7 +106,7 @@ app.use(function (state, emitter) {
 
     // =========== LISTEN FOR SMART CONTRACT EVENTS
 
-    await state.contractInstance.events.LogClap((err, event) => {
+    await state.contractInstance.events.LogClap(async (err, event) => {
       console.log('index.js -> app.use -> addClapEvent: addClap event has occurred')
 
         if (err) {
@@ -115,14 +115,14 @@ app.use(function (state, emitter) {
 
         // update entire state variables if event has occurred, and re-render
         // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
-        updateState(state)
+        await updateState(state)
         emitter.emit('render')
       })
 
 
     // addComment Event
     // Listens for event of addComment in smart contract and updates the webpage
-    state.contractInstance.events.LogComment((err, event) => {
+    state.contractInstance.events.LogComment(async (err, event) => {
       console.log('index.js -> app.use -> addCommentEvent: addComment event has occurred')
 
       if (err) {
@@ -131,14 +131,14 @@ app.use(function (state, emitter) {
 
         // update entire state variables if event has occurred, and re-render
         // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
-        updateState(state)
+        await updateState(state)
         emitter.emit('render')
       })
 
 
     // addUpload Event
     // Listens for event of addUpload in smart contract and updates the webpage
-    state.contractInstance.events.LogUpload((err, event) => {
+    state.contractInstance.events.LogUpload(async (err, event) => {
       console.log('index.js -> app.use -> addUploadEvent: addComment event has occurred')
 
       if (err) {
@@ -147,14 +147,14 @@ app.use(function (state, emitter) {
 
         // update entire state variables if event has occurred, and re-render
         // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
-        updateState(state)
+        await updateState(state)
         emitter.emit('render')
       })
 
 
     // register Event
     // Listens for event of register (a user) in smart contract and updates the webpage
-    state.contractInstance.events.LogRegister((err, event) => {
+    state.contractInstance.events.LogRegister(async (err, event) => {
     console.log('index.js -> app.use -> addUploadEvent: addComment event has occurred')
 
     if (err) {
@@ -163,7 +163,7 @@ app.use(function (state, emitter) {
       
       // update entire state variables if event has occurred, and re-render
       // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
-      updateState(state)
+      await updateState(state)
       emitter.emit('render')
     })
 
@@ -346,9 +346,26 @@ async function getComments(state, _bytes32ipfsHash) {
   // console.log('index.js -> func getComments -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let commentsBytes32Hashes = await state.contractInstance.methods.getComments(_bytes32ipfsHash).call()
   let commentsIpfsHashes = commentsBytes32Hashes.map(getIpfsHashFromBytes32)
-  let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
-  return commentsUrls
+  // let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
+  console.log('index.js -> func getComments -> commentsIpfsHashes:', commentsIpfsHashes)
+  // console.log('index.js -> func getComments -> commentsIpfsHashes[0]:', commentsIpfsHashes[0])
+  // let commentsText = []
+  // for (k = 0; k < commentsIpfsHashes.length; k++) {
+  //   commentsText[k] = await getText(commentsIpfsHashes[k])
+  // }
+  // console.log('index.js -> func getComments -> commentsText', commentsText)
+  return commentsIpfsHashes
 }
+
+
+// async function getText (longHash) {
+//   await node.cat(longHash).then((file) => {
+//     text = file.toString('utf8')
+//     // console.log('index.js -> func getText -> text:', text)
+//     // TODO: Find the relevant data in the file
+//     return (text)
+//   })
+// }
 
 // Return bytes32 hex string from IPFS hash
 function getBytes32FromIpfsHash(ipfsHash) {

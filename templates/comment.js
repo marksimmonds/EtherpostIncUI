@@ -1,22 +1,22 @@
 // import choo's template helper
 var html = require('choo/html')
 
+// Initialize IPFS
+var IPFS = require('ipfs')
+var node = new IPFS()
+
 // export module
-module.exports = function (_commentHash) {
+module.exports = function (commentHash) {
 
-	console.log('comment.js -> _commentHash:', _commentHash)
+	// console.log('comment.js -> commentHash:', commentHash)
 
+	(async function getText (_commentHash) {
+	  return await node.cat(_commentHash).toString('utf8')
+	})()
 
-	// UNABLE TO CONVERT URL TO TEXT!!!
-	// Have tried this function, but still not working
+	// let commentText = Promise.all(getText(commentHash))
+	// console.log('comment.js -> commentText:', commentText)
 
-	async function fetchAsync (url) {
-		let response = await fetch(url)
-		return await response.text()
-		console.log('comment.js -> response.text:', await response.text())
-		return response.text()
-	}
-	
 	// ===== COMMENT HTML TESTER =====
 	// return html `
 	// 	<p>TEST COMMENT</p>
@@ -24,6 +24,6 @@ module.exports = function (_commentHash) {
 
 	// ===== COMMENT HTML PROPER =====
 	return html ` 	
-		<p>${_commentHash}</p>
+		<li class="list-group-item">${commentHash}</li>
 		`
 }

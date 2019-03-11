@@ -64,14 +64,16 @@ module.exports = function (state, emit, getImageObj) {
     // console.log('main.js -> func getUserHtml -> state.username:', state.username)
     if (state.username) {
       userHtml = html `
-        <p>Welcome back ${state.username}!</p>
+        <p class="font-weight-bold">Welcome back ${state.username}!</p>
+        <br />
         `
     } else {
       userHtml = html `
         <form onsubmit="${registerUser}" method="POST">
-          <label for="registerUser">You haven\'t registered yet - come join the fun:</label>
+          <label for="registerUser">You haven\'t registered yet - come join the fun. Register a username: </label>
           <input type="text" id="registerUser" name="registerUser">
         </form>
+        <br />
         `
     }
     return userHtml
@@ -80,29 +82,45 @@ module.exports = function (state, emit, getImageObj) {
 
   // Main HTML code
   return html `
-  <div>
+  <div class="container-fluid">
     ${getUserHtml()}
 
     <form onsubmit="${upload}" method="post">
-      <label for="file">Upload:</label><br>
-      <input type="file" id="file" name="file">
-      <input type="submit" value="Add">
+      <div      class="form-group">
+
+        <label  for="file">Upload:</label><br>
+        <input  type="file" 
+                id="file" 
+                name="file">
+        <input  class="btn btn-primary"
+                type="submit" 
+                value="Add">
+      </div>
     </form>
 
-    <form onsubmit="${getPostsFromUsername}" method="post">
-      <label for="file">Show posts from other users:</label><br>
-      <input type="username" id="username" name="username">
-      <input type="submit" value="Go Get 'em">
+    <br />
+
+    <form   onsubmit="${getPostsFromUsername}" 
+            method="post">
+      <div class="form-group">
+        <label for="file">Show posts from other users:</label><br>
+        <input  type="username" 
+                id="username" 
+                name="username">
+        <input  class="btn btn-primary"
+                type="submit" 
+                value="Go Get 'em">
+      </div>
     </form>
 
-    <br>
+    <br />
 
     <!---
       ${console.log('main.js -> return html -> state.imageHashes:', state.imageHashes)}
       ${console.log('main.js -> return html -> state.username:', state.username)}
       ${console.log('main.js -> return html -> state:', state)}
     --->
-
+    
     ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
   </div>
   `
