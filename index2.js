@@ -52,7 +52,7 @@ app.use(function (state, emitter) {
     
     // Set up contract interface
     // state.contractInstance = new web3.eth.Contract(contractABI, "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194")
-    state.contractInstance = new web3.eth.Contract(contractABI, "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8")
+    state.contractInstance = new web3.eth.Contract(contractABI, "0x2e6242a07ea1c4e79ecc5c69a2dccae19878a280")
     console.log('index.js -> state.contractInstance:', state.contractInstance)
 
     // Unlock account

@@ -22,6 +22,7 @@
     "choo": "^6.13.1",
     "ipfs": "^0.34.4",
     "ipfs-http-client": "^29.1.1",
+    "node-fetch": "^2.3.0",
     "web3": "^1.0.0-beta.37"
   }
 }

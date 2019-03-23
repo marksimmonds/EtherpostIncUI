@@ -16,6 +16,7 @@ config({
     }
   }
 }, (_err, web3_accounts) => {
+  // process.exit()
   accounts = web3_accounts
   // console.log(accounts[0])
 });
@@ -38,9 +39,12 @@ function getIpfsHashFromBytes32(bytes32Hex) {
 }
 
 
-describe('Uploading Images to Etherpost:', () => {
+contract('Uploading Images to Etherpost:', () => {
 
   it('It will let us store a hash', async () => {
+    // console.log(Etherpost)
+    // console.log(Etherpost.address)
+    // process.exit()
     let testHash = 'QmSFQ7KxjCVTNps823VmVu8jkwXdwDA7TJ8UxF5bZxZ111'
     // ATT: We slice off the first two bytes because they represent the hashing algorithm,
     // which we assume to be static here and now so we can store the hash in a bytes32.
@@ -341,7 +345,7 @@ describe('Functions relating to Comments:', () => {
     let bytes32imageHash = getBytes32FromIpfsHash(imageHash)
     let bytes32commentHash = getBytes32FromIpfsHash(commentHash)
     // add comment to ipfsHash (from account 1)
-    await Etherpost.methods.addComment(bytes32imageHash, bytes32commentHash).send({ from: accounts[1] })
+    await Etherpost.methods.comment(bytes32imageHash, bytes32commentHash).send({ from: accounts[1] })
     // retreive comments array for the ipfsHash in question
     let commentsArray = await Etherpost.methods.getComments(bytes32imageHash).call()
     //confirm length of comments is now 1
@@ -359,7 +363,7 @@ describe('Functions relating to Comments:', () => {
     let bytes32imageHash = getBytes32FromIpfsHash(imageHash)
     let bytes32commentHash = getBytes32FromIpfsHash(commentHash)
     // add comment to ipfsHash (from account 2)
-    await Etherpost.methods.addComment(bytes32imageHash, bytes32commentHash).send({ from: accounts[2] })
+    await Etherpost.methods.comment(bytes32imageHash, bytes32commentHash).send({ from: accounts[2] })
     // retreive comments array for the ipfsHash in question
     let commentsArray = await Etherpost.methods.getComments(bytes32imageHash).call()
     // console.log('commentsArray:', commentsArray)
@@ -394,7 +398,7 @@ describe('Functions relating to Comments:', () => {
       assert.equal(event.returnValues.imageHash, bytes32imageHash)
       assert.equal(event.returnValues.commentHash, bytes32commentHash)
     })
-    await Etherpost.methods.addComment(bytes32imageHash, bytes32commentHash).send({ from: accounts[2] })
+    await Etherpost.methods.comment(bytes32imageHash, bytes32commentHash).send({ from: accounts[2] })
     let commentsArray = await Etherpost.methods.getComments(bytes32imageHash).call()
     // console.log('commentsArray:', commentsArray)
     //confirm length of comments is now 2
@@ -408,5 +412,28 @@ describe('Functions relating to Comments:', () => {
     assert.equal(retrievedCommentHash3, 'QmSFQ7KxjCVTNps823VmVu8jkwXdwDA7TJ8UxF5bZxZ777')
     assert.equal(eventMessage, 'success')
     // assert.equal(event.event, 'LogComment')
+  })
+})
+
+
+
+// =========== ACCESS CONTROLS ===============
+describe('Access Controls:', () => {
+
+  it('It will not allow a user to clap their own image', async () => {
+    // Use existing post from account[0]:
+    let imageHash = 'QmSFQ7KxjCVTNps823VmVu8jkwXdwDA7TJ8UxF5bZxZ111'
+    let bytes32imageHash = getBytes32FromIpfsHash(imageHash)
+    // add comment to imageHash (from account[1])
+    await Etherpost.methods.clap(bytes32imageHash).send({ from: accounts[1] })
+    // Ensure clap count has increased by 1:
+    result = await Etherpost.methods.getClapCount(bytes32imageHash).call()
+    assert.equal(result, 3)
+
+    // add a clap fto imageHash rom account[0]
+    await Etherpost.methods.clap(bytes32imageHash).send({ from: accounts[0] })
+    // Ensure clap count has not increased:
+    result = await Etherpost.methods.getClapCount(bytes32imageHash).call()
+    assert.equal(result, 3)
   })
 })

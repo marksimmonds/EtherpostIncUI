@@ -53,6 +53,7 @@ app.use(function (state, emitter) {
     // Set up contract interface
     // state.contractInstance = new web3.eth.Contract(contractABI, "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194")
     state.contractInstance = new web3.eth.Contract(contractABI, "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8")
+    // state.contractInstance = new web3.eth.Contract(contractABI, "0x2e6242a07ea1c4e79ecc5c69a2dccae19878a280")
     console.log('index.js -> state.contractInstance:', state.contractInstance)
 
     // Unlock account
@@ -80,25 +81,6 @@ app.use(function (state, emitter) {
     // =========== SECTION TO RETRIEVE RELEVANT VALUES FROM THE SMART CONTRACT AND INSERT INTO STATE
     // =========== INCLUDES - USERNAME, USERS IMAGES AND DERIVES AN IMAGE OBJECT TO INCLUDE HASH, URL, CLAPS & COMMENTS.
 
-    // Get Username from EthAddress
-    // state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).call()
-    // console.log('index.js -> app.use -> state.username:', state.username)
-
-    // // Retrieve all images from EthAddress
-    // state.imageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).call()
-    // console.log('index.js -> app.use -> state.imageHash:', state.imageHashes)
-
-    // // Derive an object from the imageHash that includes other required info
-    // state.imageObjects = state.imageHashes.map(imageHash => getImageObject(state, imageHash))
-    // // console.log('index.js -> app.use -> state.imageObjects.length:', state.imageObjects.length)
-    // // state.imageObjects = [ await getImageObject(state, state.imageHashes[0])]
-
-    // for (let i = 0; i < state.imageObjects.length; i++) {
-    //   state.imageObjects[i] = await getImageObject(state, state.imageHashes[i])
-    //   // console.log('index.js -> app.use -> state.imageObjects:', state.imageObjects[i])
-    //   // console.log('index.js -> app.use -> state.imageObjects: -> claps:', state.imageObjects[i].claps)
-    // }
-
     // Above commented-out code now covered in this function....
     await updateState(state)
     emitter.emit('render')
@@ -114,7 +96,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -130,7 +111,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -146,7 +126,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -162,7 +141,6 @@ app.use(function (state, emitter) {
       } 
       
       // update entire state variables if event has occurred, and re-render
-      // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
       await updateState(state)
       emitter.emit('render')
     })
@@ -346,15 +324,14 @@ async function getComments(state, _bytes32ipfsHash) {
   // console.log('index.js -> func getComments -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let commentsBytes32Hashes = await state.contractInstance.methods.getComments(_bytes32ipfsHash).call()
   let commentsIpfsHashes = commentsBytes32Hashes.map(getIpfsHashFromBytes32)
-  // let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
+  let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
   console.log('index.js -> func getComments -> commentsIpfsHashes:', commentsIpfsHashes)
   // console.log('index.js -> func getComments -> commentsIpfsHashes[0]:', commentsIpfsHashes[0])
-  // let commentsText = []
-  // for (k = 0; k < commentsIpfsHashes.length; k++) {
-  //   commentsText[k] = await getText(commentsIpfsHashes[k])
-  // }
-  // console.log('index.js -> func getComments -> commentsText', commentsText)
-  return commentsIpfsHashes
+  let commentsText = await Promise.all(commentsIpfsHashes.map(async hash => await node.cat(hash).toString('utf8'))
+    .then((completed) => console.log(`\nResult: ${completed}`)))
+  // Promise.all(arr.map(async (obj) => { return await obj.key; })).then((completed) => console.log( `\nResult: ${completed}`))
+  console.log('index.js -> func getComments -> commentsText', commentsText)
+  return commentsText
 }
 
 

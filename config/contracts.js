@@ -33,9 +33,7 @@ module.exports = {
     ],
     gas: "auto",
     contracts: {
-      Etherpost: {
-      args: []
-      }
+      Etherpost: {}
     }
   },
 
