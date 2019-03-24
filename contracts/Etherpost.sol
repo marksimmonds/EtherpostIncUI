@@ -32,6 +32,12 @@ contract Etherpost is EtherpostInterface {
   uint numUsers = 0;
   uint numImages = 0;
 
+  // checks if EthAddress of msg.sender is registered (required for view access to others' posts.)
+  modifier userMustBeRegistered() {
+    require(keccak256(abi.encodePacked(userInfo[msg.sender].name)) != keccak256(abi.encodePacked("")));
+    _;
+  }
+
 
   function getIpfsHashesCount() public constant returns(uint) {
     return ipfsHashes.length;
@@ -43,9 +49,9 @@ contract Etherpost is EtherpostInterface {
     numImages++;
     emit LogUpload(msg.sender, ipfsHash, now);
   }
+  
 
-
-  function getUploads(address uploader) public returns(bytes32[]) {
+  function getUploads(address uploader) public userMustBeRegistered() returns(bytes32[]) {
     return uploads[uploader];
   }
 

@@ -32,6 +32,7 @@ app.use(function (state, emitter) {
 
   // initialize state
   state.username = ''
+  state.userView = state.username // This is the users whose posts are being viewed (will be own posts initially)
   state.imageHashes = []
   state.imageObjects = [] 
 
@@ -51,8 +52,8 @@ app.use(function (state, emitter) {
     web3 = new Web3(await new Web3.providers.WebsocketProvider("ws://localhost:8555"))
     
     // Set up contract interface
-    // state.contractInstance = new web3.eth.Contract(contractABI, "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194")
-    state.contractInstance = new web3.eth.Contract(contractABI, "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8")
+    state.contractInstance = new web3.eth.Contract(contractABI, "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194")
+    // state.contractInstance = new web3.eth.Contract(contractABI, "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8")
     console.log('index.js -> state.contractInstance:', state.contractInstance)
 
     // Unlock account
@@ -72,8 +73,8 @@ app.use(function (state, emitter) {
     // })
 
 
-    web3.eth.personal.unlockAccount(accounts[0], "test password!", 600)
-      .then(web3.eth.defaultAccount = accounts[0])
+    web3.eth.personal.unlockAccount(accounts[1], "test password!", 600)
+      .then(web3.eth.defaultAccount = accounts[1])
       .then(console.log('index.js -> app.use -> Account unlocked. Default account - account[0]:', web3.eth.defaultAccount))
 
 
@@ -81,23 +82,8 @@ app.use(function (state, emitter) {
     // =========== INCLUDES - USERNAME, USERS IMAGES AND DERIVES AN IMAGE OBJECT TO INCLUDE HASH, URL, CLAPS & COMMENTS.
 
     // Get Username from EthAddress
-    // state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).call()
-    // console.log('index.js -> app.use -> state.username:', state.username)
-
-    // // Retrieve all images from EthAddress
-    // state.imageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).call()
-    // console.log('index.js -> app.use -> state.imageHash:', state.imageHashes)
-
-    // // Derive an object from the imageHash that includes other required info
-    // state.imageObjects = state.imageHashes.map(imageHash => getImageObject(state, imageHash))
-    // // console.log('index.js -> app.use -> state.imageObjects.length:', state.imageObjects.length)
-    // // state.imageObjects = [ await getImageObject(state, state.imageHashes[0])]
-
-    // for (let i = 0; i < state.imageObjects.length; i++) {
-    //   state.imageObjects[i] = await getImageObject(state, state.imageHashes[i])
-    //   // console.log('index.js -> app.use -> state.imageObjects:', state.imageObjects[i])
-    //   // console.log('index.js -> app.use -> state.imageObjects: -> claps:', state.imageObjects[i].claps)
-    // }
+    // Retrieve all images from EthAddress
+    // Derive an object from the imageHash that includes other required info
 
     // Above commented-out code now covered in this function....
     await updateState(state)
@@ -202,6 +188,7 @@ app.use(function (state, emitter) {
   })
 
 
+  // This allows registered users only to get the uploads posted by another registered user by entering the other users username.
   emitter.on('getPostsFromUsername', async function (_username) {
     let userAddress = await state.contractInstance.methods.getAddressFromName(_username).call()
     let uploads = await state.contractInstance.methods.getUploads(userAddress).call()
@@ -209,6 +196,7 @@ app.use(function (state, emitter) {
     console.log('index.js -> app.use -> emitter getPostsFromUsername -> userAddress:', userAddress, 'uploads:', uploads, 'l:', l)
     emitter.emit('render')   
   })
+
 
   // Adds a clap to the smart contract (called from 'addClap function in main.js')
   emitter.on('addClap', async function (_imageHash) {

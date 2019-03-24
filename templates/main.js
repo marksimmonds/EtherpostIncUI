@@ -19,7 +19,7 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
-  // get Uploads from username (contract comms goes in index)
+  // get Uploads from another user, by typing in username into the form (contract comms goes in index.js).
   function getPostsFromUsername(e) {
     e.preventDefault()
     var data = new FormData(e.currentTarget)
