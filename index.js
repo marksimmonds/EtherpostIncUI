@@ -75,7 +75,7 @@ app.use(function (state, emitter) {
 
     web3.eth.personal.unlockAccount(accounts[1], "test password!", 600)
       .then(web3.eth.defaultAccount = accounts[1])
-      .then(console.log('index.js -> app.use -> Account unlocked. Default account - account[0]:', web3.eth.defaultAccount))
+      .then(console.log('index.js -> app.use -> Account unlocked:', web3.eth.defaultAccount))
 
 
     // =========== SECTION TO RETRIEVE RELEVANT VALUES FROM THE SMART CONTRACT AND INSERT INTO STATE
@@ -100,7 +100,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -116,7 +115,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -132,7 +130,6 @@ app.use(function (state, emitter) {
         } 
 
         // update entire state variables if event has occurred, and re-render
-        // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
         await updateState(state)
         emitter.emit('render')
       })
@@ -148,7 +145,6 @@ app.use(function (state, emitter) {
       } 
       
       // update entire state variables if event has occurred, and re-render
-      // WANT TO PUT 'AWAIT' BEFORE THIS FUNCTION, BUT DOES NOT PARSE!!!!
       await updateState(state)
       emitter.emit('render')
     })
@@ -190,10 +186,16 @@ app.use(function (state, emitter) {
 
   // This allows registered users only to get the uploads posted by another registered user by entering the other users username.
   emitter.on('getPostsFromUsername', async function (_username) {
-    let userAddress = await state.contractInstance.methods.getAddressFromName(_username).call()
-    let uploads = await state.contractInstance.methods.getUploads(userAddress).call()
+    state.userView = _username
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> state.userView:', state.userView)
+    let _userViewEthAddress = await state.contractInstance.methods.getAddressFromName(state.userView).call()
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> _userViewEthAddress:', _userViewEthAddress)
+    let uploads = await state.contractInstance.methods.getUploads(_userViewEthAddress).call({from: web3.eth.defaultAccount})
     let l = uploads.length
-    console.log('index.js -> app.use -> emitter getPostsFromUsername -> userAddress:', userAddress, 'uploads:', uploads, 'l:', l)
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> state.userView:', state.userView, `${state.userView}`, 'uploads:', uploads, 'l:', l)
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> userViewEthAddress:', _userViewEthAddress)
+    await updateState(state)
+    console.log('index.js -> app.use -> emitter getPostsFromUsername -> state updated!', state)
     emitter.emit('render')   
   })
 
@@ -242,6 +244,7 @@ app.use(function (state, emitter) {
     .on('error', console.error)
     .on('receipt', async receipt => {
       console.log('index.js -> app.use -> emitter -> registerUser -> Success!', receipt)
+      state.userView = _username
       emitter.emit('render')
     })
   })
@@ -287,11 +290,15 @@ app.mount('div')
 async function updateState(state) {
   // Get Username from EthAddress
   state.username = await state.contractInstance.methods.getName(web3.eth.defaultAccount).call()
-  console.log('index.js -> app.use -> state.username:', state.username)
+  console.log('index.js -> func updateState -> state.username:', state.username)
+
+  // Get Eth Address of the Images that we want to view (from the state.userView variable)
+  let userViewEthAddress = await state.contractInstance.methods.getAddressFromName(state.userView).call()
+  console.log('index.js -> func updateState -> state.userView & EthAddress:', state.userView, userViewEthAddress)
 
   // Retrieve all images from EthAddress
-  state.imageHashes = await state.contractInstance.methods.getUploads(web3.eth.defaultAccount).call()
-  console.log('index.js -> app.use -> state.imageHash:', state.imageHashes)
+  state.imageHashes = await state.contractInstance.methods.getUploads(userViewEthAddress).call()
+  console.log('index.js -> func updateState -> state.imageHashes:', state.imageHashes)
 
   // Derive an object from the imageHash that includes other required info
   state.imageObjects = state.imageHashes.map(imageHash => getImageObject(state, imageHash))
@@ -305,14 +312,15 @@ async function updateState(state) {
   }
 }
 
+
 // Takes necessary inputs and returns object for each image that includes the full url, the clap count and the array of comments.
 // This is used in main.js 'return html', where it is passed to the image.js & comment.js rendering modules.
 async function getImageObject(state, _bytes32ipfsHash) {
   // console.log('index.js -> func getImageObject -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let ipfsHash = getIpfsHashFromBytes32(_bytes32ipfsHash)
-  // console.log('index.js -> func getImageObject -> bytes32Hash:', ipfsHash)
+  console.log('index.js -> func getImageObject -> bytes32Hash:', ipfsHash)
   let ipfsUrl = `https://ipfs.io/ipfs/${ipfsHash}`
-  // console.log('index.js -> func getImageObject -> ipfsUrl:', ipfsUrl)
+  console.log('index.js -> func getImageObject -> ipfsUrl:', ipfsUrl)
   let claps = await getClaps(state, _bytes32ipfsHash)
   // console.log('index.js -> func getImageObject -> claps:', claps)
   let comments = await getComments(state, _bytes32ipfsHash)
@@ -334,7 +342,8 @@ async function getComments(state, _bytes32ipfsHash) {
   // console.log('index.js -> func getComments -> _bytes32ipfsHash:', _bytes32ipfsHash)
   let commentsBytes32Hashes = await state.contractInstance.methods.getComments(_bytes32ipfsHash).call()
   let commentsIpfsHashes = commentsBytes32Hashes.map(getIpfsHashFromBytes32)
-  // let commentsUrls = commentsIpfsHashes.map(hash => `https://ipfs.io/ipfs/${hash}`)
+  // let commentsUrls = commentsIpfsHashes.map(async hash => return `https://ipfs.io/ipfs/${hash}`)
+  // Promise.all(commentsUrls).then((completed) => completed)
   console.log('index.js -> func getComments -> commentsIpfsHashes:', commentsIpfsHashes)
   // console.log('index.js -> func getComments -> commentsIpfsHashes[0]:', commentsIpfsHashes[0])
   // let commentsText = []
@@ -354,6 +363,7 @@ async function getComments(state, _bytes32ipfsHash) {
 //     return (text)
 //   })
 // }
+
 
 // Return bytes32 hex string from IPFS hash
 function getBytes32FromIpfsHash(ipfsHash) {

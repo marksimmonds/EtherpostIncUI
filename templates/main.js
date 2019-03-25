@@ -80,6 +80,39 @@ module.exports = function (state, emit, getImageObj) {
   }
 
 
+  // using state.userView name, get uploads from that user
+  function getUserPostsHtml() {
+    console.log('main.js -> func getUserPostsHtml -> state.userView:', state.userView)
+    let userPostsHtml = html ``
+
+    if (state.userView) {
+      console.log('main.js -> func getUserPostsHtml -> state.userview Exists')
+      console.log('main.js -> func getUserPostsHtml -> state.imageObjects', state.imageObjects)
+      console.log('main.js -> func getUserPostsHtml -> state.imageObject[0]', state.imageObjects[0])
+
+      userPostsHtml = html `
+        <div>
+          <p class="font-weight-bold">You are looking at posts from: ${state.userView}</p>
+          ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
+          <br />
+        </div>
+        `
+
+    } else {
+      console.log('main.js -> func getUserPostsHtml -> state.userview DOES NOT Exist')
+
+      userPostsHtml = html `
+        <div>
+          <p class="font-weight-bold">No username entered :-(</p>
+          <br />
+        </div>
+        `
+    }
+    return userPostsHtml
+  }
+
+
+
   // Main HTML code
   return html `
   <div class="container-fluid">
@@ -103,7 +136,7 @@ module.exports = function (state, emit, getImageObj) {
     <form   onsubmit="${getPostsFromUsername}" 
             method="post">
       <div class="form-group">
-        <label for="file">Show posts from other users:</label><br>
+        <label for="file">Show posts from other users - enter their username here:</label><br>
         <input  type="username" 
                 id="username" 
                 name="username">
@@ -120,8 +153,10 @@ module.exports = function (state, emit, getImageObj) {
       ${console.log('main.js -> return html -> state.username:', state.username)}
       ${console.log('main.js -> return html -> state:', state)}
     --->
-    
-    ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}
+    ${getUserPostsHtml()}
+
   </div>
   `
 }
+
+//     ${state.imageObjects.map(image => imageHtml(image, addClap, addComment, state))}

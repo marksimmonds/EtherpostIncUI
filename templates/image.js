@@ -15,9 +15,9 @@ module.exports = function (_imageObj, addClap, addComment, state) {
 	var claps 			= _imageObj.claps
 	var comments 		= _imageObj.comments
 
-	// console.log('image.js -> _imageObj:', _imageObj)
-	// console.log('image.js -> _imageObj.claps', _imageObj.claps)
-	// console.log('image.js -> _imageObj.comments', _imageObj.comments)
+	console.log('image.js -> _imageObj:', _imageObj)
+	console.log('image.js -> _imageObj.claps', _imageObj.claps)
+	console.log('image.js -> _imageObj.comments', _imageObj.comments)
 
 	// IMAGE HTML TESTER
 	// let image = html `<p>Image goes here</p>`
